@@ -21,12 +21,12 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit",
-    "build": "pnpm type-check && bunchee && pnpm copy-assets",
-    "copy-assets": "cp -r ./src/style.css ./style.css",
+    "build": "npm run type-check && bunchee && npm run copy-assets",
+    "copy-assets": "copyfiles -f ./src/style.css .",
     "dev": "bunchee --watch",
-    "dev:test": "turbo run dev --filter=test...",
+    "dev:test": "npx turbo run dev --filter=test...",
     "format": "prettier --write .",
-    "test": "playwright test"
+    "test": "npx playwright test"
   },
   "keywords": [
     "react",
@@ -34,15 +34,11 @@
     "dialog",
     "modal"
   ],
-  "author": "Emil Kowalski <e@emilkowal.ski>",
+  "author": "Emil Kowalski <e@emilkowal.ski> (original author)",
   "license": "MIT",
-  "homepage": "https://vaul.emilkowal.ski/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/emilkowalski/vaul.git"
-  },
-  "bugs": {
-    "url": "https://github.com/emilkowalski/vaul/issues"
+    "url": "https://github.com/simoneconti/vaul.git"
   },
   "devDependencies": {
     "@playwright/test": "^1.37.1",
@@ -50,7 +46,9 @@
     "@types/node": "20.5.7",
     "@types/react": "18.2.55",
     "@types/react-dom": "18.2.18",
+    "@types/scheduler": "^0.26.0",
     "bunchee": "^5.1.5",
+    "copyfiles": "^2.4.1",
     "eslint": "^7.32.0",
     "prettier": "^2.5.1",
     "react": "^18.2.0",
@@ -62,7 +60,6 @@
     "react": "^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc",
     "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc"
   },
-  "packageManager": "pnpm@8.8.0",
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1"
   }

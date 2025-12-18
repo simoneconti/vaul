@@ -2,27 +2,27 @@
 
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import React from 'react';
-import { DrawerContext, useDrawerContext } from './context';
-import './style.css';
-import { usePreventScroll, isInput } from './use-prevent-scroll';
-import { useComposedRefs } from './use-composed-refs';
-import { useSnapPoints } from './use-snap-points';
-import { set, getTranslate, dampenValue, isVertical, reset } from './helpers';
+import { isIOS, isMobileFirefox } from './browser';
 import {
+  BORDER_RADIUS,
+  CLOSE_THRESHOLD,
+  DRAG_CLASS,
+  NESTED_DISPLACEMENT,
+  SCROLL_LOCK_TIMEOUT,
   TRANSITIONS,
   VELOCITY_THRESHOLD,
-  CLOSE_THRESHOLD,
-  SCROLL_LOCK_TIMEOUT,
-  BORDER_RADIUS,
-  NESTED_DISPLACEMENT,
   WINDOW_TOP_OFFSET,
-  DRAG_CLASS,
 } from './constants';
+import { DrawerContext, useDrawerContext } from './context';
+import { dampenValue, getTranslate, isVertical, reset, set } from './helpers';
+import './style.css';
 import { DrawerDirection } from './types';
+import { useComposedRefs } from './use-composed-refs';
 import { useControllableState } from './use-controllable-state';
-import { useScaleBackground } from './use-scale-background';
 import { usePositionFixed } from './use-position-fixed';
-import { isIOS, isMobileFirefox } from './browser';
+import { isInput, usePreventScroll } from './use-prevent-scroll';
+import { useScaleBackground } from './use-scale-background';
+import { useSnapPoints } from './use-snap-points';
 
 export interface WithFadeFromProps {
   /**
@@ -440,7 +440,7 @@ export function Root({
         const scaleValue = Math.min(getScale() + percentageDragged * (1 - getScale()), 1);
         const borderRadiusValue = 8 - percentageDragged * 8;
 
-        const translateValue = Math.max(0, 14 - percentageDragged * 14);
+        const translateValue = Math.max(0, 14 - percentageDragged * 14) * directionMultiplier;
 
         set(
           wrapper,
@@ -679,8 +679,9 @@ export function Root({
 
   function onNestedOpenChange(o: boolean) {
     const scale = o ? (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth : 1;
+    const directionMultiplier = direction === 'bottom' || direction === 'right' ? 1 : -1;
 
-    const initialTranslate = o ? -NESTED_DISPLACEMENT : 0;
+    const initialTranslate = o ? -NESTED_DISPLACEMENT * directionMultiplier : 0;
 
     if (nestedOpenChangeTimer.current) {
       window.clearTimeout(nestedOpenChangeTimer.current);
@@ -695,7 +696,7 @@ export function Root({
 
     if (!o && drawerRef.current) {
       nestedOpenChangeTimer.current = setTimeout(() => {
-        const translateValue = getTranslate(drawerRef.current as HTMLElement, direction);
+        const translateValue = (getTranslate(drawerRef.current as HTMLElement, direction) ?? 0) * directionMultiplier;
         set(drawerRef.current, {
           transition: 'none',
           transform: isVertical(direction)
@@ -709,9 +710,11 @@ export function Root({
   function onNestedDrag(_event: React.PointerEvent<HTMLDivElement>, percentageDragged: number) {
     if (percentageDragged < 0) return;
 
+    const directionMultiplier = direction === 'bottom' || direction === 'right' ? 1 : -1;
+
     const initialScale = (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth;
     const newScale = initialScale + percentageDragged * (1 - initialScale);
-    const newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT;
+    const newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT * directionMultiplier;
 
     set(drawerRef.current, {
       transform: isVertical(direction)
@@ -722,9 +725,10 @@ export function Root({
   }
 
   function onNestedRelease(_event: React.PointerEvent<HTMLDivElement>, o: boolean) {
+    const directionMultiplier = direction === 'bottom' || direction === 'right' ? 1 : -1;
     const dim = isVertical(direction) ? window.innerHeight : window.innerWidth;
     const scale = o ? (dim - NESTED_DISPLACEMENT) / dim : 1;
-    const translate = o ? -NESTED_DISPLACEMENT : 0;
+    const translate = o ? -NESTED_DISPLACEMENT * directionMultiplier : 0;
 
     if (o) {
       set(drawerRef.current, {

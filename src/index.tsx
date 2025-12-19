@@ -714,7 +714,13 @@ export function Root({
 
     const initialScale = (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth;
     const newScale = initialScale + percentageDragged * (1 - initialScale);
-    const newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT * directionMultiplier;
+    let newTranslate;
+
+    if (directionMultiplier === 1) {
+      newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT;
+    } else if (directionMultiplier === -1) {
+      newTranslate = NESTED_DISPLACEMENT - percentageDragged * NESTED_DISPLACEMENT;
+    }
 
     set(drawerRef.current, {
       transform: isVertical(direction)

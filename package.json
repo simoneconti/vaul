@@ -1,6 +1,6 @@
 {
   "name": "@simoneconti/vaul",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Drawer component for React. (fork of emilkowalski/vaul)",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
